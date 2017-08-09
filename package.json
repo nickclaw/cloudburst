@@ -1,5 +1,5 @@
 {
-  "name": "undercurrent",
+  "name": "cloudburst",
   "version": "0.1.0",
   "description": "",
   "main": "lib/index.js",
@@ -14,9 +14,9 @@
     "publish:patch": "npm version patch && npm publish",
     "postpublish": "git push origin master --tags"
   },
-  "repository": "https://github.com/nickclaw/undercurrent",
+  "repository": "https://github.com/nickclaw/cloudburst",
   "bugs": {
-    "url": "http://github.com/nickclaw/undercurrent/issues"
+    "url": "http://github.com/nickclaw/cloudburst/issues"
   },
   "keywords": [],
   "author": "Nicholas Clawson <nickclaw@gmail.com> (nickclaw.com)",

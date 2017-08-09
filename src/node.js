@@ -177,19 +177,3 @@ export default class Node {
     return this.outputs[key];
   }
 }
-
-class Spread extends Node {
-
-  constructor(inputs) {
-    super();
-
-    this.inputs = inputs;
-    this.outputs = {
-      value: f(Type.collection(Type.any)),
-    }
-  }
-
-  transform({ data }) {
-    return { value: _.values(data) };
-  }
-}
