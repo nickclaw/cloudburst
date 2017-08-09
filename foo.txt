@@ -1,0 +1,92 @@
+import Type from './type';
+import Runtime from './runtime';
+
+const runtime = new Runtime();
+const hum = createHumidity(runtime, {});
+
+const temp = runtime.createSource({
+  async init() {
+    this.sensor = new TemperatureSensor();
+    sensor.on('change', (value) => {
+      this.emit({ value });
+    }) 
+  },
+
+  async teardown() {
+    this.sensor.off();
+    this.sensor.destory();
+  },
+
+  output: {
+    value: {
+      type: Type.number,
+    },
+  },
+});
+
+const bad = runtime.createMiddleware({
+  input: {
+    degrees: { node: temp, path: 'value', type: Type.number },
+    humidity: { node: hum, path: 'value', type: Type.number },
+  },
+  output: {
+    value: {
+      type: Type.boolean,
+    },
+  },
+}, (evt) => {
+  const { temperature, humidity } = evt.input;
+  return { value: temperature * humidity > 1000 };
+});
+
+const light = runtime.createOutput({
+  init() {
+    this.light = new Hue(),
+  },
+
+  teardown() {
+
+  }
+
+  input: {
+    on: { node: bad, path: 'value', type: Type.boolean },
+  }
+})
+
+await runtime.start();
+
+const foo = runtime.createNode({
+  
+  input: {
+    foo: {
+      type: Type.number,
+      node: light,
+      path: 'value',
+    },
+  },
+
+  output: {
+    value: {
+      type: Type.boolean,
+    },
+  },
+
+  state: {
+    lastValue: 0,
+  },
+
+  async init() {
+    something.on('change', evt => {
+      this.emit({ value: evt.value });
+    });
+  },
+
+  async teardown() {
+    something.off('change');
+  },
+
+  async onChange({ data, state, emit, }) {
+    this.store({ lastValue: data.foo });
+    this.emit({ value: data.foo > 10 });
+  },
+});
