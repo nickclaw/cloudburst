@@ -1,22 +1,53 @@
 import _ from 'lodash';
-import Async from '../../nodes/async-transform';
+import Node from '../../node';
+import f from '../../field';
 
-class Throttle extends Async {
+function identityTransform({ data }) {
+  return this.emit(data);
+}
 
-  constructor({
-    node,
-    delay = 0,
-    leading = false,
-    trailing = true,
-  }) {
+export class Throttle extends Node {
+
+  constructor() {
     super();
-    this.inputs = _.mapValues(node.outputTypes, (type, key) => node.getOutput(key));
-    this.inputTypes = node.outputTypes;
-    this.outputTypes = node.outputTypes;
-    this.transform = _.throttle(obj => this.emit(obj.data), delay, { leading, trailing });
+
+    this._inner = null;
+    this.transform = identityTransform;
+    this.options = {
+      delay: 0,
+      leading: false,
+      trailing: true,
+    };
+  }
+
+  async init() {
+    await super.init();
+
+    this.transform = _.throttle(
+      identityTransform.bind(this),
+      this.options.delay,
+      {
+        leading: this.options.leading,
+        trailing: this.options.trailing,
+      }
+    );
+  }
+
+  async teardown() {
+    await super.teardown();
+    this.transform.cancel();
+    this.transform = identityTransform;
+  }
+
+  over(node) {
+    this._inner = node;
+    this.inputs = _.mapValues(node.outputs, field => field.to(field.type));
+    this.outputs = _.mapValues(node.outputs, field => f(field.type));
+
+    return this;
   }
 }
 
-export default function exec(options) {
-  return new Throttle(options);
+export default function throttle() {
+  return new Throttle();
 }

@@ -1,29 +1,51 @@
-import _ from 'lodash';
 import * as Type from '../../types';
-import std from '../index';
+import Node from '../../node';
+import f from '../../field';
 
-function singleArg(fn) {
-  return function(input) {
-    return std.control.exec({
-      inputs: { value: input },
-      inputTypes: { value: Type.number },
-      outputTypes: { value: Type.number },
-      fn: (data) => ({ value: fn(data.value) }),
-    });
+export function singleArg(fn) {
+  class SingleArgNode extends Node {
+
+    inputs = {
+      value: f(Type.number).set(0),
+    };
+
+    outputs = {
+      value: f(Type.number),
+    }
+
+    transform({ data }) {
+      return { value: fn(data.value) };
+    }
+  }
+
+  return function() {
+    return new SingleArgNode();
   }
 }
 
-function spreadArgs(fn) {
-  return function(inputs) {
-    return std.control.exec({
-      inputs,
-      inputTypes: _.mapValues(inputs, () => Type.number),
-      outputTypes: { value: Type.number },
-      fn: (data) => ({ value: fn(..._.values(data)) })
-    });
-  };
+export function leftRightArgs(fn) {
+  class LeftRightArgNode extends Node {
+
+    inputs = {
+      left: f(Type.number).set(0),
+      right: f(Type.number).set(0),
+    };
+
+    outputs = {
+      value: f(Type.number),
+    };
+
+    transform({ data }) {
+      return { value: fn(data.left, data.right) };
+    }
+  }
+
+  return function() {
+    return new LeftRightArgNode();
+  }
 }
 
+export { default as random } from './random';
 export const abs = singleArg(Math.abs);
 export const acos = singleArg(Math.acos);
 export const acosh = singleArg(Math.acosh);
@@ -54,38 +76,22 @@ export const tan = singleArg(Math.tan);
 export const tanh = singleArg(Math.tanh);
 export const trunc = singleArg(Math.trunc);
 
-export const min = spreadArgs(Math.min);
-export const max = spreadArgs(Math.max);
+// export const min = spreadArgs(Math.min);
+// export const max = spreadArgs(Math.max);
 
-export const add = spreadArgs((...args) => args.reduce(
-  (n, val) => n + val,
-  0
-));
+// export const add = spreadArgs((...args) => args.reduce(
+//   (n, val) => n + val,
+//   0
+// ));
 
-export const gt = (inputs) => std.control.exec({
-  inputs,
-  inputTypes: { left: Type.number, right: Type.number },
-  outputTypes: { value: Type.boolean },
-  fn: (data) => ({ value: data.left > data.right }),
-});
 
-export const lt = (inputs) => std.control.exec({
-  inputs,
-  inputTypes: { left: Type.number, right: Type.number },
-  outputTypes: { value: Type.boolean },
-  fn: (data) => ({ value: data.left < data.right }),
-});
+export const mod = leftRightArgs((l, r) => l % r);
 
-export const gte = (inputs) => std.control.exec({
-  inputs,
-  inputTypes: { left: Type.number, right: Type.number },
-  outputTypes: { value: Type.boolean },
-  fn: (data) => ({ value: data.left >= data.right }),
-});
-
-export const lte = (inputs) => std.control.exec({
-  inputs,
-  inputTypes: { left: Type.number, right: Type.number },
-  outputTypes: { value: Type.boolean },
-  fn: (data) => ({ value: data.left <= data.right }),
-});
+// TODO spread
+export const add = leftRightArgs((l, r) => l + r);
+export const sub = leftRightArgs((l, r) => l - r);
+export const mul = leftRightArgs((l, r) => l * r);
+export const div = leftRightArgs((l, r) => l / r);
+export const min = leftRightArgs(Math.min);
+export const max = leftRightArgs(Math.max);
+export const average = leftRightArgs((l, r) => (l + r) / 2)

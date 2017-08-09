@@ -1,17 +1,5 @@
 import _ from 'lodash';
 
-export function validate(schema, value) {
-  const safeValue = {};
-
-  for (const [key, type] of Object.entries(schema)) {
-    const out = type(value[key]);
-    if (_.isError(out)) throw out;
-    safeValue[key] = out;
-  }
-
-  return safeValue;
-}
-
 export function any(val) {
   return val;
 }

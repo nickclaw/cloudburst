@@ -2,7 +2,7 @@ import * as control from './control';
 import * as input from './input';
 import * as output from './output';
 import * as math from './math';
-import * as boolean from './boolean';
+import * as logic from './logic';
 import * as object from './object';
 
 export default {
@@ -10,6 +10,6 @@ export default {
   input,
   output,
   math,
-  boolean,
+  logic,
   object,
 };

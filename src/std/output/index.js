@@ -1,22 +1,22 @@
 import util from 'util';
 import _ from 'lodash';
 import * as Type from '../../types';
-import Transform from '../../nodes/async-transform';
+import Node from '../../node';
+import f from '../../field';
 
-class Log extends Transform {
+class Log extends Node {
 
-  constructor(inputs) {
-    super();
+  async = true;
 
-    this.inputs = inputs;
-    this.inputTypes = _.mapValues(inputs, () => Type.any);
-  }
+  inputs = {
+    value: f(Type.any),
+  };
 
-  async transform({ data }) {
-    console.log(util.inspect(data)); // eslint-disable-line no-console
+  transform({ data }) {
+    console.log(util.inspect(data.value)); // eslint-disable-line no-console
   }
 }
 
-export function log(input) {
-  return new Log(input);
+export function log() {
+  return new Log();
 }
