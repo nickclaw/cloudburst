@@ -5,5 +5,5 @@ export default ({
 } = {}) => {
   return Observable
     .interval(interval)
-    .map(() => Date.now())
+    .map(() => new Date())
 }
